@@ -35,6 +35,10 @@
         checkLooseOnce : true
     };
 
+    var helper = new createjs.Bitmap('asset/boule.jpeg');
+    helper.name = 'helper';
+    helper.x = globalWidth;
+
     stage.canvas.width =  globalWidth;
     stage.canvas.height =  globalHeight;
 
@@ -82,10 +86,11 @@
     function clickToStart(elmt){
         elmt.on('click', function(e){
             if(e.target.name === 'startAlert'){
-                createjs.Tween.get(startContainer).to({ alpha: 0 }, 600);
+                createjs.Tween.get(startContainer).to({ y : globalHeight * 2 }, 600);
             } else if(e.target.name === 'looseAlert') {
-                createjs.Tween.get(looseContainer).to({ alpha: 0 }, 600);
+                createjs.Tween.get(looseContainer).to({ y : globalHeight * 2 }, 600);
             };
+            createjs.Tween.get(helper).to({ x : globalWidth - 150 }, 600);
             var startSound = createjs.Sound.play("start");
             startSound.volume = 0.5;
             // Restart timer
@@ -198,7 +203,6 @@
 
     // Define a shape or a color the player had to kill
     function defineObjectif(){
-        // var possibilities = ["rect", "circle", "star", "losange", "red", "blue", "green", "purple", "orange"];
         var possibilities = ["rect", "circle", "star", "losange"];
         var shapeContainer = stage.getChildByName('shapeContainer');
         // Check if form or color property is too near from left side
@@ -221,14 +225,6 @@
         console.log(possibilities);
         return objectif;
     };
-
-    // updateObjectif() on each click
-    // function updateObjectif(){
-    //     player.objectif = defineObjectif();
-    //     // var objectifUi = stage.getChildByName('objectif');
-    //     // objectifUi.text = 'Objectif: ' + player.objectif;
-    //     // stage.update();
-    // }
 
     // Call in clickToStart() function
     function displayObjectif(){
@@ -293,12 +289,22 @@
 
     // Check if objectif has been missed
     function checkIfGameOver(){
+        var danger = {};
+        danger.x = 0;
+        if(stage.getChildByName('helper') === null){
+            stage.addChild(helper);
+        }
         if(player.isPlaying && player.checkLooseOnce){
             for(var i = 0, x = shapeContainer.children.length; i < x; i++){
                 if(shapeContainer.children[i] != undefined){
                     if(shapeContainer.children[i].form === player.objectif){
                         if(shapeContainer.children[i].x > (globalWidth + 40)){
                             gameOver();
+                        }
+                        // Add helper
+                        if(shapeContainer.children[i].x > danger.x){
+                            danger = shapeContainer.children[i];
+                            helper.y = danger.y;
                         }
                     }
                 }
@@ -311,9 +317,6 @@
         // Stop the game
         player.isPlaying = false;
         player.checkLooseOnce = false;
-        shapeContainer.removeAllChildren();
-        stage.removeChild(stage.getChildByName('objectif'));
-        stage.removeChild(stage.getChildByName('score'));
         // Display game informations
         var overlay = new createjs.Shape();
         overlay.name = 'looseAlert';
@@ -339,12 +342,18 @@
         score.y = globalHeight / 2 + 14;
         clickToStart(overlay);
         looseContainer.addChild(overlay, loose, restart, score, btn);
-        looseContainer.alpha = 0;
+        looseContainer.y = globalHeight * 2;
         stage.addChild(looseContainer);
         stage.update();
         var gamoverSound = createjs.Sound.play("gameover");
         gamoverSound.volume = 0.5;
-        createjs.Tween.get(looseContainer).to({ alpha: 1 }, 600);
+        createjs.Tween.get(looseContainer).to({ y : 0 }, 600).call(deleteShape);
+    }
+
+    function deleteShape(){
+        shapeContainer.removeAllChildren();
+        stage.removeChild(stage.getChildByName('objectif'));
+        stage.removeChild(stage.getChildByName('score'));
     }
 
     // Function call at every frame
