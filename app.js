@@ -4,7 +4,6 @@
     function getRandomIntInclusive(min, max) {
         return Math.floor(Math.random() * (max - min +1)) + min;
     }
-
     // Link the easel stage to the canvas
     var stage = new createjs.Stage("game");
 
@@ -35,17 +34,14 @@
         checkLooseOnce : true
     };
 
-    var helper = new createjs.Bitmap('asset/boule.jpeg');
-    helper.name = 'helper';
-    helper.x = globalWidth;
+
+
 
     stage.canvas.width =  globalWidth;
     stage.canvas.height =  globalHeight;
 
     // Sound loader
-    createjs.Sound.registerSound({id:"kill01", src:"asset/kill01.mp3"});
-    createjs.Sound.registerSound({id:"gameover", src:"asset/gameover.mp3"});
-    createjs.Sound.registerSound({id:"start", src:"asset/start.mp3"});
+    createjs.Sound.registerSound({id:"fond", src:"asset/fond.mp3"});
     createjs.Sound.addEventListener("fileload", handleFileLoad);
 
     function handleFileLoad(e) {
@@ -87,12 +83,10 @@
         elmt.on('click', function(e){
             if(e.target.name === 'startAlert'){
                 createjs.Tween.get(startContainer).to({ y : globalHeight * 2 }, 600);
+                var globalSound = createjs.Sound.play("fond");
             } else if(e.target.name === 'looseAlert') {
                 createjs.Tween.get(looseContainer).to({ y : globalHeight * 2 }, 600);
             };
-            createjs.Tween.get(helper).to({ x : globalWidth - 150 }, 600);
-            var startSound = createjs.Sound.play("start");
-            startSound.volume = 0.5;
             // Restart timer
             beginDate = Date.now();
             player.score = 0;
@@ -100,6 +94,7 @@
             player.checkLooseOnce = true;
             displayObjectif();
             displayScore();
+            displayHelper();
         });
     }
 
@@ -195,8 +190,8 @@
                 updateScore(10);
                 displayObjectif();
                 removeShape(e);
-                var killSound = createjs.Sound.play("kill01");
-                killSound.volume = 0.15;
+                // var killSound = createjs.Sound.play("kill01");
+                // killSound.volume = 0.15;
             }
         });
     }
@@ -239,7 +234,7 @@
         var shapeColor = '#000';
         s.name = 'objectif';
         s.x = globalWidth / 2;
-        s.y = globalHeight / 3;
+        s.y = globalHeight / 2;
         s.scaleX = 5;
         s.scaleY = 5;
         s.alpha = 0;
@@ -266,7 +261,7 @@
         stage.update();
         // set shapeContainer z-index above the objective
         stage.setChildIndex(shapeContainer, stage.getNumChildren()-1);
-        createjs.Tween.get(s).to({ alpha : 0.3, y : globalHeight / 2 }, 150);
+        createjs.Tween.get(s).to({ alpha : 0.3 }, 150);
     }
 
     // Display score
@@ -287,13 +282,21 @@
         stage.update();
     }
 
+    function displayHelper(){
+        var graphics = new createjs.Graphics().beginFill("red").drawRect(0, 0, 10, 100);
+        var shape = new createjs.Shape(graphics);
+        shape.name = 'helper';
+        shape.x = globalWidth - 10;
+        shape.y = globalHeight / 2 - 50;
+        if(stage.getChildByName('helper') === null){
+            stage.addChild(shape);
+        }
+    }
+
     // Check if objectif has been missed
     function checkIfGameOver(){
         var danger = {};
         danger.x = 0;
-        if(stage.getChildByName('helper') === null){
-            stage.addChild(helper);
-        }
         if(player.isPlaying && player.checkLooseOnce){
             for(var i = 0, x = shapeContainer.children.length; i < x; i++){
                 if(shapeContainer.children[i] != undefined){
@@ -304,7 +307,8 @@
                         // Add helper
                         if(shapeContainer.children[i].x > danger.x){
                             danger = shapeContainer.children[i];
-                            helper.y = danger.y;
+                            console.log(danger.y)
+                            stage.getChildByName('helper').y = danger.y - 50;
                         }
                     }
                 }
@@ -345,8 +349,6 @@
         looseContainer.y = globalHeight * 2;
         stage.addChild(looseContainer);
         stage.update();
-        var gamoverSound = createjs.Sound.play("gameover");
-        gamoverSound.volume = 0.5;
         createjs.Tween.get(looseContainer).to({ y : 0 }, 600).call(deleteShape);
     }
 
