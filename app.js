@@ -41,7 +41,7 @@
     stage.canvas.height =  globalHeight;
 
     // Sound loader
-    createjs.Sound.registerSound({id:"fond", src:"asset/fond.mp3"});
+    createjs.Sound.registerSound({id:"fond", src:"./asset/fond.mp3"});
     createjs.Sound.addEventListener("fileload", handleFileLoad);
 
     function handleFileLoad(e) {
@@ -307,7 +307,6 @@
                         // Add helper
                         if(shapeContainer.children[i].x > danger.x){
                             danger = shapeContainer.children[i];
-                            console.log(danger.y)
                             stage.getChildByName('helper').y = danger.y - 50;
                         }
                     }
