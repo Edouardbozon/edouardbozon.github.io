@@ -34,9 +34,6 @@
         checkLooseOnce : true
     };
 
-
-
-
     stage.canvas.width =  globalWidth;
     stage.canvas.height =  globalHeight;
 
@@ -46,6 +43,7 @@
 
     function handleFileLoad(e) {
         console.log("Preloaded:", e.id, e.src);
+        var globalSound = createjs.Sound.play("fond");
     }
 
     // Function call in first
@@ -83,7 +81,6 @@
         elmt.on('click', function(e){
             if(e.target.name === 'startAlert'){
                 createjs.Tween.get(startContainer).to({ y : globalHeight * 2 }, 600);
-                var globalSound = createjs.Sound.play("fond");
             } else if(e.target.name === 'looseAlert') {
                 createjs.Tween.get(looseContainer).to({ y : globalHeight * 2 }, 600);
             };
@@ -160,6 +157,8 @@
         var possibleShapes = ["rect", "circle", "star", "losange"];
         var selectShape = possibleShapes[getRandomIntInclusive(0, possibleShapes.length - 1)];
         shape.form = selectShape;
+        shape.scallX = 2;
+        shape.scallY = 2;
         switch(selectShape){
             case "circle" :
             shape.graphics.drawCircle(0, 0, 20);
